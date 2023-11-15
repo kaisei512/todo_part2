@@ -13,8 +13,25 @@ export const  ToDoApp = () => {
     const [filter, setFilter] = useState('ALL');
     
     // 入力値をtodos(配列)に設定
-    const handleAdd = text => {
+    const handleSubmit = async (text) => {
         setToDos([...todos, { key: getKey(), text, done: false }]);
+        try {
+            const response = await fetch('http://localhost:5000/api/todos/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({do: text})
+            });
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Todo added:', data);
+            } else {
+                console.error('Failed to add todo');
+            }
+        } catch (error){
+            console.error('Error', error);
+        }
     };
     
     // フィルターの切り替え
@@ -26,7 +43,6 @@ export const  ToDoApp = () => {
         if (filter === 'TODO') return !todo.done;
         if (filter === 'DONE') return todo.done;
     });
-    
     // チェックボックス判定
     const handleCheck = checked => {
         // チェックがついたToDoの真偽値(done)を変更
@@ -44,7 +60,7 @@ export const  ToDoApp = () => {
         <div className="panel-heading">
             ToDo
         </div>
-        <InputToDo onAdd={handleAdd} />
+        <InputToDo onAdd={handleSubmit} />
         <Filter
             onChange={handleFilterChange}
             value={filter}

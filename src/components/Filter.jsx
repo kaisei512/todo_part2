@@ -4,6 +4,7 @@ import 'bulma/css/bulma.css';
 export const Filter = (props) => {
 
     // propsを定義
+    // 左辺の代入先変数の順番はバラバラでもよい
     const { value, onChange } = props;
 
     // フィルターの切り替え
