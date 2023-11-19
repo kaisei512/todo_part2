@@ -15,15 +15,15 @@ export const ToDo = (props) => {
         <label className="panel-block">
         <input
             type="checkbox"
-            checked={todo.done}
+            checked={todo.finish_flg}
             onChange={handleChange}
         />
         <span
             className={classNames({
-            'has-text-grey-light': todo.done
+            'has-text-grey-light': todo.finish_flg
             })}
         >
-            {todo.text}
+            {todo.do}
         </span>
         </label>
     );
