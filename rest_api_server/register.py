@@ -21,7 +21,7 @@ mysql = init()
 @app.route('/api/todos/register', methods=['POST'])
 def add_todo():
     global mysql
-    data = request.json
+    data = request.get_json()
     cursor = mysql.connection.cursor()
     query = 'INSERT INTO todos (do) VALUES (%s)'
     cursor.execute(query, (data['do'],))
@@ -37,8 +37,6 @@ def get_todos():
     finish = request.args.get('finish', type=str)
     deleted = request.args.get('deleted', default='0', type=str)
     cursor = mysql.connection.cursor()
-    print(type(finish))
-    print(type(deleted))
     query = f"SELECT id, do, finish_flg FROM todos WHERE del_flg = {deleted}"
     if finish is not None:
         query += f" AND finish_flg = {finish}"
@@ -50,14 +48,29 @@ def get_todos():
     return jsonify([{'id': row[0], 'do': row[1], 'finish_flg': row[2]} for row in todos])
 
 
+@app.route('/api/todos/finish/<int:todo_id>', methods=['PATCH'])
+def update_finish_flag(todo_id):
+    global mysql
+    data = request.get_json()
+    finish_flg = data['finish_flg']
+
+    cur = mysql.connection.cursor()
+    cur.execute("UPDATE todos SET finish_flg = %s WHERE id = %s", (finish_flg, todo_id))
+    mysql.connection.commit()
+    cur.close()
+
+    return jsonify({'message': 'ToDoのfinish_flgが更新されました'}), 200
+
+
 if __name__ == '__main__':
-    if '1':
-        print(1)
-    # from dotenv import load_dotenv
-    # load_dotenv()
-    # app.run(debug=True)
+    from dotenv import load_dotenv
+    load_dotenv()
+    app.run(debug=True)
     """
+    ### sample post method
     curl -X POST http://localhost:5000/api/todos -H "Content-Type: application/json" -d '{"name":"新しいTODO"}'
     curl.exe -X POST http://localhost:5000/api/todos -H "Content-Type: application/json" -d '{\"name\":\"新しいTODO\"}'
+    ### sample patch method
+    curl -X PATCH http://localhost:5000/api/finish/3 -H "Content-Type: application/json" -d '{\"finish_flg\": \"1\"}'
 
     """
